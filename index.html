@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Farhan AI</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+        <aside class="sidebar">
+
+    <div class="sidebar-logo">
+        🤖 <b>Farhan AI</b>
+    </div>
+
+    <button class="new-chat" onclick="clearChat()">
+        ＋ New Chat
+    </button>
+
+    <div class="sidebar-title">
+        Recent Chats
+    </div>
+
+    <div class="chat-item">
+        💬 Current Chat
+    </div>
+
+</aside>
+
+        <!-- Header -->
+        <header class="header">
+
+            <div class="brand">
+
+                <div class="logo">
+                    🤖
+                </div>
+
+                <div>
+                    <h1>Farhan AI</h1>
+                    <span>● Online</span>
+                </div>
+
+            </div>
+
+            <div class="header-buttons">
+
+                <button onclick="toggleTheme()" title="Theme">
+                    🌙
+                </button>
+
+                <button onclick="clearChat()" title="New Chat">
+                    ＋
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- Chat Area -->
+        <main id="chatBox" class="chat-box">
+
+            <div class="welcome">
+
+                <div class="welcome-icon">
+                    ✨
+                </div>
+
+                <h2>Welcome to Farhan AI</h2>
+
+                <p>
+                    Your personal AI assistant. Ask me anything.
+                </p>
+
+            </div>
+
+            <div class="ai-message">
+                Hello! 👋 I'm Farhan AI. How can I help you today?
+            </div>
+
+        </main>
+
+
+        <!-- Input Area -->
+        <div class="input-container">
+
+            <div class="input-box">
+
+                <input
+                    type="text"
+                    id="message"
+                    placeholder="Message Farhan AI..."
+                    autocomplete="off"
+                    onkeydown="handleEnter(event)"
+                >
+
+                <button onclick="sendMessage()" class="send-button">
+                    ➤
+                </button>
+
+            </div>
+
+            <p class="disclaimer">
+                Farhan AI can make mistakes. Check important information.
+            </p>
+
+        </div>
+
+    </div>
+
+
+<script>
+
+async function sendMessage() {
+
+    const input = document.getElementById("message");
+    const chatBox = document.getElementById("chatBox");
+
+    const message = input.value.trim();
+
+    if (message === "") {
+        return;
+    }
+
+    // Remove welcome screen
+    const welcome = document.querySelector(".welcome");
+
+    if (welcome) {
+        welcome.remove();
+    }
+
+    // User message
+    const userMessage = document.createElement("div");
+
+    userMessage.className = "user-message";
+    userMessage.innerText = message;
+
+    chatBox.appendChild(userMessage);
+    addChatHistory(message);
+
+    input.value = "";
+
+    // Thinking message
+    const thinking = document.createElement("div");
+
+    thinking.className = "ai-message";
+    thinking.innerText = "Thinking... 🤔";
+
+    chatBox.appendChild(thinking);
+
+    thinking.classList.add("ai-reply");
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:5000/chat",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    message: message
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        const reply = data.reply;
+
+        thinking.innerHTML = '<span class="reply-text"></span>';
+
+        let i = 0;
+
+        const typing = setInterval(() => {
+
+            thinking.querySelector(".reply-text").innerText += reply.charAt(i);
+
+            i++;
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (i >= reply.length) {
+    clearInterval(typing);
+
+    const copyButton = document.createElement("button");
+
+    copyButton.innerText = "📋 Copy";
+    copyButton.className = "copy-button";
+
+    copyButton.onclick = () => {
+        navigator.clipboard.writeText(reply);
+        copyButton.innerText = "✅ Copied";
+    };
+
+    thinking.appendChild(copyButton);
+}
+
+        }, 15);
+
+    }
+
+    catch (error) {
+
+        thinking.innerText =
+            "❌ Something went wrong. Please try again.";
+
+    }
+
+}
+
+function addChatHistory(message) {
+
+    const sidebar = document.querySelector(".sidebar");
+
+    const chatItem = document.createElement("div");
+
+    chatItem.className = "chat-item";
+
+    chatItem.innerText = "💬 " + message.substring(0, 22);
+
+    sidebar.appendChild(chatItem);
+}
+
+async function clearChat() {
+
+    await fetch(
+        "http://127.0.0.1:5000/clear",
+        {
+            method: "POST"
+        }
+    );
+
+    document.querySelectorAll(".sidebar .chat-item").forEach(item => item.remove());
+    document.getElementById("chatBox").innerHTML = `
+
+        <div class="welcome">
+
+            <div class="welcome-icon">
+                ✨
+            </div>
+
+            <h2>Welcome to Farhan AI</h2>
+
+            <p>
+                Your personal AI assistant. Ask me anything.
+            </p>
+
+        </div>
+
+        <div class="ai-message">
+            Hello! 👋 I'm Farhan AI. How can I help you today?
+        </div>
+
+    `;
+}
+
+
+function toggleTheme() {
+
+    document.body.classList.toggle("dark-mode");
+
+}
+
+
+function handleEnter(event) {
+
+    if (event.key === "Enter" && !event.shiftKey) {
+
+        event.preventDefault();
+
+        sendMessage();
+
+    }
+
+}
+
+</script>
+
+</body>
+
+</html>
