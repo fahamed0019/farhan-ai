@@ -12,44 +12,87 @@
 
 <body>
 
-    <div class="app">
-        <aside class="sidebar">
+<div class="app">
 
-    <div class="sidebar-logo">
-        🤖 <b>Farhan AI</b>
-    </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-    <button class="new-chat" onclick="clearChat()">
-        ＋ New Chat
-    </button>
+        <div class="sidebar-top">
 
-    <div class="sidebar-title">
-        Recent Chats
-    </div>
-
-    <div class="chat-item">
-        💬 Current Chat
-    </div>
-
-</aside>
-
-        <!-- Header -->
-        <header class="header">
-
-            <div class="brand">
-
-                <div class="logo">
-                    🤖
-                </div>
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">F</div>
 
                 <div>
-                    <h1>Farhan AI</h1>
-                    <span>● Online</span>
+                    <b>Farhan AI</b>
+                    <small>Personal AI Assistant</small>
+                </div>
+            </div>
+
+            <button class="new-chat" onclick="clearChat()">
+                <span>＋</span>
+                New Chat
+            </button>
+
+            <div class="sidebar-title">
+                Recent Chats
+            </div>
+
+            <div class="chat-history" id="chatHistory">
+
+                <div class="chat-item active">
+                    <span>💬</span>
+                    <span>Current Chat</span>
                 </div>
 
             </div>
 
-            <div class="header-buttons">
+        </div>
+
+        <div class="sidebar-bottom">
+
+            <button class="sidebar-option" onclick="toggleTheme()">
+                <span>🌙</span>
+                Dark Mode
+            </button>
+
+            <div class="sidebar-profile">
+                <div class="profile-avatar">F</div>
+
+                <div>
+                    <b>Farhan</b>
+                    <small>AI&DS Student</small>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <section class="main">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <div class="header-left">
+
+                <div class="mobile-logo">
+                    F
+                </div>
+
+                <div>
+                    <h1>Farhan AI</h1>
+
+                    <div class="status">
+                        <span class="status-dot"></span>
+                        Online
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="header-actions">
 
                 <button onclick="toggleTheme()" title="Theme">
                     🌙
@@ -64,7 +107,7 @@
         </header>
 
 
-        <!-- Chat Area -->
+        <!-- CHAT -->
         <main id="chatBox" class="chat-box">
 
             <div class="welcome">
@@ -73,23 +116,50 @@
                     ✨
                 </div>
 
-                <h2>Welcome to Farhan AI</h2>
+                <h2>
+                    Welcome to <span>Farhan AI</span>
+                </h2>
 
                 <p>
-                    Your personal AI assistant. Ask me anything.
+                    Your personal AI assistant. Ask questions, learn,
+                    create and explore.
                 </p>
+
+                <div class="suggestions">
+
+                    <button onclick="useSuggestion('Explain machine learning simply')">
+                        🧠 Explain Machine Learning
+                    </button>
+
+                    <button onclick="useSuggestion('Help me write Python code')">
+                        💻 Help with Python
+                    </button>
+
+                    <button onclick="useSuggestion('Give me a study plan')">
+                        📚 Create a Study Plan
+                    </button>
+
+                </div>
 
             </div>
 
             <div class="ai-message">
-                Hello! 👋 I'm Farhan AI. How can I help you today?
+
+                <div class="message-avatar">
+                    F
+                </div>
+
+                <div class="message-content">
+                    Hello! 👋 I'm <b>Farhan AI</b>. How can I help you today?
+                </div>
+
             </div>
 
         </main>
 
 
-        <!-- Input Area -->
-        <div class="input-container">
+        <!-- INPUT -->
+        <div class="input-area">
 
             <div class="input-box">
 
@@ -101,7 +171,11 @@
                     onkeydown="handleEnter(event)"
                 >
 
-                <button onclick="sendMessage()" class="send-button">
+                <button
+                    onclick="sendMessage()"
+                    class="send-button"
+                    title="Send"
+                >
                     ➤
                 </button>
 
@@ -113,7 +187,9 @@
 
         </div>
 
-    </div>
+    </section>
+
+</div>
 
 
 <script>
@@ -129,122 +205,180 @@ async function sendMessage() {
         return;
     }
 
-    // Remove welcome screen
     const welcome = document.querySelector(".welcome");
 
     if (welcome) {
         welcome.remove();
     }
 
-    // User message
+
+    // USER MESSAGE
     const userMessage = document.createElement("div");
 
     userMessage.className = "user-message";
+
     userMessage.innerText = message;
 
     chatBox.appendChild(userMessage);
+
     addChatHistory(message);
 
     input.value = "";
 
-    // Thinking message
+
+    // THINKING
     const thinking = document.createElement("div");
 
-    thinking.className = "ai-message";
-    thinking.innerText = "Thinking... 🤔";
+    thinking.className = "ai-message ai-reply";
+
+    thinking.innerHTML = `
+        <div class="message-avatar">F</div>
+        <div class="message-content">
+            <span class="thinking">Thinking...</span>
+        </div>
+    `;
 
     chatBox.appendChild(thinking);
-
-    thinking.classList.add("ai-reply");
 
     chatBox.scrollTop = chatBox.scrollHeight;
 
 
     try {
 
-        const response = await fetch(
-            "/chat",
-            {
-                method: "POST",
+        const response = await fetch("/chat", {
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+            method: "POST",
 
-                body: JSON.stringify({
-                    message: message
-                })
-            }
-        );
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+
+        });
+
 
         const data = await response.json();
 
         const reply = data.reply;
 
-        thinking.innerHTML = '<span class="reply-text"></span>';
+
+        thinking.innerHTML = `
+            <div class="message-avatar">F</div>
+            <div class="message-content">
+                <span class="reply-text"></span>
+            </div>
+        `;
+
+
+        const replyText = thinking.querySelector(".reply-text");
 
         let i = 0;
 
+
         const typing = setInterval(() => {
 
-            thinking.querySelector(".reply-text").innerText += reply.charAt(i);
+            replyText.innerText += reply.charAt(i);
 
             i++;
 
             chatBox.scrollTop = chatBox.scrollHeight;
 
+
             if (i >= reply.length) {
-    clearInterval(typing);
 
-    const copyButton = document.createElement("button");
+                clearInterval(typing);
 
-    copyButton.innerText = "📋 Copy";
-    copyButton.className = "copy-button";
 
-    copyButton.onclick = () => {
-        navigator.clipboard.writeText(reply);
-        copyButton.innerText = "✅ Copied";
-    };
+                const copyButton =
+                    document.createElement("button");
 
-    thinking.appendChild(copyButton);
-}
+                copyButton.innerText = "📋 Copy";
+
+                copyButton.className = "copy-button";
+
+
+                copyButton.onclick = () => {
+
+                    navigator.clipboard.writeText(reply);
+
+                    copyButton.innerText = "✅ Copied";
+
+                    setTimeout(() => {
+                        copyButton.innerText = "📋 Copy";
+                    }, 1500);
+
+                };
+
+
+                thinking
+                    .querySelector(".message-content")
+                    .appendChild(copyButton);
+
+            }
 
         }, 15);
 
     }
 
+
     catch (error) {
 
-        thinking.innerText =
-            "❌ Something went wrong. Please try again.";
+        thinking.innerHTML = `
+            <div class="message-avatar">F</div>
+            <div class="message-content error">
+                ❌ Something went wrong. Please try again.
+            </div>
+        `;
 
     }
 
 }
 
+
+/* CHAT HISTORY */
+
 function addChatHistory(message) {
 
-    const sidebar = document.querySelector(".sidebar");
+    const history =
+        document.getElementById("chatHistory");
 
-    const chatItem = document.createElement("div");
+    const chatItem =
+        document.createElement("div");
 
     chatItem.className = "chat-item";
 
-    chatItem.innerText = "💬 " + message.substring(0, 22);
+    chatItem.innerHTML = `
+        <span>💬</span>
+        <span>${message.substring(0, 24)}</span>
+    `;
 
-    sidebar.appendChild(chatItem);
+    history.appendChild(chatItem);
+
 }
+
+
+/* NEW CHAT */
 
 async function clearChat() {
 
-    await fetch(
-        "/clear",
-        {
-            method: "POST"
-        }
-    );
+    await fetch("/clear", {
+        method: "POST"
+    });
 
-    document.querySelectorAll(".sidebar .chat-item").forEach(item => item.remove());
+
+    document.getElementById("chatHistory").innerHTML = `
+
+        <div class="chat-item active">
+            <span>💬</span>
+            <span>Current Chat</span>
+        </div>
+
+    `;
+
+
     document.getElementById("chatBox").innerHTML = `
 
         <div class="welcome">
@@ -253,21 +387,62 @@ async function clearChat() {
                 ✨
             </div>
 
-            <h2>Welcome to Farhan AI</h2>
+            <h2>
+                Welcome to <span>Farhan AI</span>
+            </h2>
 
             <p>
-                Your personal AI assistant. Ask me anything.
+                Your personal AI assistant. Ask questions,
+                learn, create and explore.
             </p>
+
+            <div class="suggestions">
+
+                <button onclick="useSuggestion('Explain machine learning simply')">
+                    🧠 Explain Machine Learning
+                </button>
+
+                <button onclick="useSuggestion('Help me write Python code')">
+                    💻 Help with Python
+                </button>
+
+                <button onclick="useSuggestion('Give me a study plan')">
+                    📚 Create a Study Plan
+                </button>
+
+            </div>
 
         </div>
 
         <div class="ai-message">
-            Hello! 👋 I'm Farhan AI. How can I help you today?
+
+            <div class="message-avatar">
+                F
+            </div>
+
+            <div class="message-content">
+                Hello! 👋 I'm <b>Farhan AI</b>. How can I help you today?
+            </div>
+
         </div>
 
     `;
+
 }
 
+
+/* SUGGESTIONS */
+
+function useSuggestion(text) {
+
+    document.getElementById("message").value = text;
+
+    sendMessage();
+
+}
+
+
+/* DARK MODE */
 
 function toggleTheme() {
 
@@ -276,9 +451,14 @@ function toggleTheme() {
 }
 
 
+/* ENTER */
+
 function handleEnter(event) {
 
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (
+        event.key === "Enter" &&
+        !event.shiftKey
+    ) {
 
         event.preventDefault();
 
