@@ -75,23 +75,23 @@ body {
 .sidebar-logo-icon {
     width: 40px;
     height: 40px;
+    flex-shrink: 0;
+
+    border-radius: 12px;
+    overflow: hidden;
+
+    background: transparent;
 
     display: flex;
     align-items: center;
     justify-content: center;
+}
 
-    border-radius: 12px;
-
-    background: linear-gradient(
-        135deg,
-        #111827,
-        #374151
-    );
-
-    color: white;
-
-    font-size: 20px;
-    font-weight: 700;
+.sidebar-logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .sidebar-logo b {
@@ -102,11 +102,9 @@ body {
 .sidebar-logo small {
     display: block;
     margin-top: 3px;
-
     color: var(--muted);
     font-size: 11px;
 }
-
 
 /* NEW CHAT */
 
@@ -521,15 +519,22 @@ body {
 
     border-radius: 9px;
 
+    overflow: hidden;
+
     background: #111827;
-    color: white;
 
     display: flex;
     align-items: center;
     justify-content: center;
+}
 
-    font-size: 12px;
-    font-weight: 700;
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
 }
 
 .message-content {
@@ -884,4 +889,80 @@ body {
         border-radius: 13px;
     }
 
+}
+/* AI reply slide-in animation */
+.message {
+    animation: messageSlide 0.35s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+body.light-mode {
+    background: #f5f5f5;
+    color: #111827;
+}
+
+body.light-mode .sidebar {
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+}
+
+body.light-mode .main {
+    background: #f5f5f5;
+}
+
+body.light-mode .message-content {
+    color: #111827;
+}
+
+body.light-mode .chat-input {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #111827;
+}
+
+body.light-mode .theme-btn {
+    background: #f3f4f6;
+    color: #111827;
+}
+.theme-btn {
+    width: 100%;
+    padding: 10px 12px;
+
+    border: 1px solid #2f2f2f;
+    border-radius: 10px;
+
+    background: #181818;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+    background: #252525;
+    transform: translateY(-1px);
+}
+
+body.light-mode .theme-btn {
+    background: #f3f4f6;
+    color: #111827;
+    border-color: #e5e7eb;
+}
+
+body.light-mode .theme-btn:hover {
+    background: #e5e7eb;
 }

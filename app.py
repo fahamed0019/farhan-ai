@@ -1,11 +1,13 @@
 from flask import Flask, request, jsonify, send_from_directory
 from google import genai
 from dotenv import load_dotenv
+from flask_cors import CORS
 import os
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # Get API key from .env
 api_key = os.getenv("GEMINI_API_KEY")
@@ -31,6 +33,9 @@ def clear_chat():
 def home():
     return send_from_directory(".", "index.html")
 
+@app.route("/logo.png")
+def logo():
+    return send_from_directory(".", "logo.png")
 
 # Chat
 @app.route("/chat", methods=["POST"])

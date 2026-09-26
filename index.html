@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -20,7 +21,11 @@
         <div class="sidebar-top">
 
             <div class="sidebar-logo">
-                <div class="sidebar-logo-icon">F</div>
+                <div class="sidebar-logo-icon">
+                    <img src="logo.png" alt="Farhan AI">
+                    </div>
+                
+        
 
                 <div>
                     <b>Farhan AI</b>
@@ -32,6 +37,10 @@
                 <span>＋</span>
                 New Chat
             </button>
+
+            <button class="theme-btn" onclick="toggleTheme()">
+                🌙 Dark Mode
+                </button>
 
             <div class="sidebar-title">
                 Recent Chats
@@ -146,7 +155,7 @@
             <div class="ai-message">
 
                 <div class="message-avatar">
-                    F
+                    <img src="logo.png" alt="Farhan AI">
                 </div>
 
                 <div class="message-content">
@@ -210,6 +219,17 @@ async function sendMessage() {
     if (welcome) {
         welcome.remove();
     }
+    function toggleTheme() {
+    document.body.classList.toggle("light-mode");
+
+    const button = document.querySelector(".theme-btn");
+
+    if (document.body.classList.contains("light-mode")) {
+        button.innerHTML = "☀️ Light Mode";
+    } else {
+        button.innerHTML = "🌙 Dark Mode";
+    }
+}
 
 
     // USER MESSAGE
@@ -232,7 +252,9 @@ async function sendMessage() {
     thinking.className = "ai-message ai-reply";
 
     thinking.innerHTML = `
-        <div class="message-avatar">F</div>
+        <div class="message-avatar">
+            <img src="logo.png" alt="Farhan AI">
+            </div>
         <div class="message-content">
             <span class="thinking">Thinking...</span>
         </div>
@@ -245,7 +267,7 @@ async function sendMessage() {
 
     try {
 
-        const response = await fetch("/chat", {
+    const response = await fetch("/chat", {
 
             method: "POST",
 
@@ -266,7 +288,9 @@ async function sendMessage() {
 
 
         thinking.innerHTML = `
-            <div class="message-avatar">F</div>
+            <div class="message-avatar">
+                <img src="logo.png" alt="Farhan AI">
+                </div>
             <div class="message-content">
                 <span class="reply-text"></span>
             </div>
@@ -275,51 +299,32 @@ async function sendMessage() {
 
         const replyText = thinking.querySelector(".reply-text");
 
-        let i = 0;
+replyText.innerHTML = marked.parse(reply);
 
+chatBox.scrollTop = chatBox.scrollHeight;
 
-        const typing = setInterval(() => {
+const copyButton =
+    document.createElement("button");
 
-            replyText.innerText += reply.charAt(i);
+copyButton.innerText = "📋 Copy";
 
-            i++;
+copyButton.className = "copy-button";
 
-            chatBox.scrollTop = chatBox.scrollHeight;
+copyButton.onclick = () => {
 
+    navigator.clipboard.writeText(reply);
 
-            if (i >= reply.length) {
+    copyButton.innerText = "✅ Copied";
 
-                clearInterval(typing);
+    setTimeout(() => {
+        copyButton.innerText = "📋 Copy";
+    }, 1500);
 
+};
 
-                const copyButton =
-                    document.createElement("button");
-
-                copyButton.innerText = "📋 Copy";
-
-                copyButton.className = "copy-button";
-
-
-                copyButton.onclick = () => {
-
-                    navigator.clipboard.writeText(reply);
-
-                    copyButton.innerText = "✅ Copied";
-
-                    setTimeout(() => {
-                        copyButton.innerText = "📋 Copy";
-                    }, 1500);
-
-                };
-
-
-                thinking
-                    .querySelector(".message-content")
-                    .appendChild(copyButton);
-
-            }
-
-        }, 15);
+thinking
+    .querySelector(".message-content")
+    .appendChild(copyButton);;
 
     }
 
@@ -364,9 +369,15 @@ function addChatHistory(message) {
 
 async function clearChat() {
 
-    await fetch("/clear", {
-        method: "POST"
-    });
+    const clearUrl =
+    (window.location.hostname === "127.0.0.1" ||
+     window.location.hostname === "localhost")
+        ? "http://127.0.0.1:5000/clear"
+        : "/clear";
+
+await fetch(clearUrl, {
+    method: "POST"
+});
 
 
     document.getElementById("chatHistory").innerHTML = `
