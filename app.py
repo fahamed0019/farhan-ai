@@ -31,11 +31,15 @@ def clear_chat():
 # Home
 @app.route("/")
 def home():
-    return send_from_directory(".", "index.html")
+    return send_from_directory(app.root_path, "index.html")
+
+@app.route("/style.css")
+def stylesheet():
+    return send_from_directory(app.root_path, "style.css")
 
 @app.route("/logo.png")
 def logo():
-    return send_from_directory(".", "logo.png")
+    return send_from_directory(app.root_path, "logo.png")
 
 # Chat
 @app.route("/chat", methods=["POST"])
